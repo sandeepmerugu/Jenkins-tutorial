@@ -5,7 +5,7 @@ pipeline {
   stages{
     stage ('test') {
      steps {
-      ps1  'node --version'
+      powershell  'node --version'
       }
     }
    }
