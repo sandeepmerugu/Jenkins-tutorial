@@ -1,0 +1,12 @@
+---
+- name: Fetch service details from servers
+  hosts: all
+  gather_facts: no
+  tasks:
+    - name: Fetch service details from Linux server
+      command: cat /etc/os-release
+      when: ansible_os_family == "Linux"
+
+    - name: Fetch service details from Windows server
+      win_command: systeminfo | Select-String "OS"
+      when: ansible_os_family == "Windows"
