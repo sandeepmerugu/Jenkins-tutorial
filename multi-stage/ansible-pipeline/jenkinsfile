@@ -9,7 +9,7 @@ pipeline {
         stage('Checkout Code') {
             steps {
                 // Clone the repository containing the Jenkinsfile and Ansible playbooks
-                git url: 'https://github.com/your-repository/ansible-playbooks.git', branch: 'main'
+                git url: 'https://github.com/sandeepmerugu/Jenkins-tutorial.git', branch: 'main'
             }
         }
 
