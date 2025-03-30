@@ -37,7 +37,7 @@ pipeline {
                         // Run Ansible playbook for each server
                         echo "Running playbook for ${trimmedServer}..."
                         sh """
-                        ansible-playbook -i inventory/hosts.ini --extra-vars "target=${trimmedServer}" playbooks/fetch_service_details.yml
+                        ansible-playbook -i inventory/hosts.ini --extra-vars "target=${trimmedServer}" multi-stage/ansible-playbooks/inventory/details.yaml
                         """
                     }
                 }
