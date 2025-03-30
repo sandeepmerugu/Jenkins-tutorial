@@ -1,12 +1,12 @@
 pipeline {
   agent none
   stages {
-    stage('prepare')  {
+    stage('Prepare') {
       agent any
       steps {
-        echo 'Preparing the workspace..'
-	}
-     }
+        echo 'Preparing the workspace...'
+      }
+    }
 
     stage('Back-end') {
       agent {
@@ -14,40 +14,42 @@ pipeline {
       }
       steps {
         sh 'mvn --version'
-	sh 'mvn clean package' //Simulating build process
-	archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
-
+        sh 'mvn clean package' // Simulating build process
+        archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
       }
     }
+
     stage('Front-end') {
       agent {
         docker { image 'node:16-alpine' }
       }
       steps {
         sh 'node --version'
-	sh 'npm install'  // Install dependencies
+        sh 'npm install'  // Install dependencies
         sh 'npm run build' // Simulating front-end build
         archiveArtifacts artifacts: 'dist/**', fingerprint: true
 
-	echo 'Running front-end test'
-	sh 'npm test'
+        echo 'Running front-end tests'
+        sh 'npm test'
       }
     }
+
     stage('Test') {
       agent {
-        docker { image  'maven:3.8.1-adoptopenjdk-11' }
+        docker { image 'maven:3.8.1-adoptopenjdk-11' }
       }
       steps {
         echo 'Running back-end tests...'
         sh 'mvn test'
       }
     }
-    stage('Deploy')
-       agent any
-       steps {
-          echo 'Deploying the application'
-	  sh 'echo "Deploying backend.jar and frontend build to production server"'
-       }
-     }   
+
+    stage('Deploy') {
+      agent any
+      steps {
+        echo 'Deploying the application...'
+        sh 'echo "Deploying backend.jar and frontend build to production server"'
+      }
+    }
   }
 }
