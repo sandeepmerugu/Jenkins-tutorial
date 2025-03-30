@@ -1,0 +1,59 @@
+pipeline {
+    agent any
+
+    parameters {
+        string(name: 'TARGET_SERVERS', defaultValue: '', description: 'Comma-separated list of IPs of target servers')
+    }
+
+    stages {
+        stage('Checkout Code') {
+            steps {
+                // Clone the repository containing the Jenkinsfile and Ansible playbooks
+                git url: 'https://github.com/your-repository/ansible-playbooks.git', branch: 'main'
+            }
+        }
+
+        stage('Validate IP Addresses') {
+            steps {
+                script {
+                    def servers = params.TARGET_SERVERS.trim()
+                    // Validate if IPs are provided, otherwise fail the build
+                    if (servers.isEmpty()) {
+                        error "No target servers provided. Please enter a valid list of IPs."
+                    }
+                    echo "Target servers: ${servers}"
+                }
+            }
+        }
+
+        stage('Run Ansible Playbook') {
+            steps {
+                script {
+                    def servers = params.TARGET_SERVERS.split(',')
+                    for (server in servers) {
+                        // Trim any leading/trailing spaces from the IP addresses
+                        def trimmedServer = server.trim()
+
+                        // Run Ansible playbook for each server
+                        echo "Running playbook for ${trimmedServer}..."
+                        sh """
+                        ansible-playbook -i inventory/hosts.ini --extra-vars "target=${trimmedServer}" playbooks/fetch_service_details.yml
+                        """
+                    }
+                }
+            }
+        }
+
+        stage('Post-Run Actions') {
+            steps {
+                echo 'Playbook execution completed for all target servers.'
+            }
+        }
+    }
+
+    post {
+        always {
+            echo 'Pipeline completed.'
+        }
+    }
+}
