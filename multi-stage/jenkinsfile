@@ -1,12 +1,22 @@
 pipeline {
   agent none
   stages {
+    stage('prepare')  {
+      agent any
+      steps {
+        echo 'Preparing the workspace..'
+	}
+     }
+
     stage('Back-end') {
       agent {
         docker { image 'maven:3.8.1-adoptopenjdk-11' }
       }
       steps {
         sh 'mvn --version'
+	sh 'mvn clean package' //Simulating build process
+	archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
+
       }
     }
     stage('Front-end') {
@@ -15,7 +25,30 @@ pipeline {
       }
       steps {
         sh 'node --version'
+	sh 'npm install'  // Install dependencies
+        sh 'npm run build' // Simulating front-end build
+        archiveArtifacts artifacts: 'dist/**', fingerprint: true
+
+	echo 'Running front-end test'
+	sh 'npm test'
       }
     }
+    stage('Test') {
+      agent {
+        docker { image  'maven:3.8.1-adoptopenjdk-11' }
+      }
+      steps {
+        echo 'Running back-end tests...'
+        sh 'mvn test'
+      }
+    }
+    stage('Deploy')
+       agent any
+       steps {
+          echo 'Deploying the application'
+	  sh 'echo "Deploying backend.jar and frontend build to production server"
+       }
+    }   
+	  
   }
 }
