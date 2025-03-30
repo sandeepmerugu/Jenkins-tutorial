@@ -48,7 +48,6 @@ pipeline {
           echo 'Deploying the application'
 	  sh 'echo "Deploying backend.jar and frontend build to production server"'
        }
-    }   
-	  
+     }   
   }
 }
